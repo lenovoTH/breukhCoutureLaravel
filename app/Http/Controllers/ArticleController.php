@@ -10,6 +10,7 @@ use Illuminate\Validation\Validator;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\CategorieResource;
 use App\Http\Resources\FournisseurResource;
+use Intervention\Image\Facades\Image;
 
 class ArticleController extends Controller
 {
@@ -30,12 +31,12 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         // dd($request);
-        $request->validate([
-            'libelle' => 'required',
-            'prix' => 'required',
-            'stock' => 'required',
-            // 'image' => 'required'
-        ]);
+        // $request->validate([
+        //     'libelle' => 'required',
+        //     'prix' => 'required',
+        //     'stock' => 'required',
+        //     // 'image' => 'required'
+        // ]);
 
         // dd($request->file('image'));
         // if ($request->hasFile('image')) {
@@ -43,14 +44,14 @@ class ArticleController extends Controller
         // } else {
         //     return "ce n'est pas une image";
         // }
-        
+        $categorie = Categorie::where('libelle', $request->categorie)->first();
         $image_path = $request->file('photo');
         $article = Article::create([
             'libelle' => $request->libelle,
             'prix' => $request->prix,
             'stock' => $request->stock,
-            'fournisseur_id' => $request->fournisseur_id,
-            'categorie_id' => $request->categorie_id,
+            'fournisseur_id' => $request->fournisseur,
+            'categorie_id' => $categorie->id,
             'reference' => $request->reference,
             'photo' => $image_path
         ]);
@@ -93,4 +94,19 @@ class ArticleController extends Controller
         $article->delete();
         return response()->json($article);
     }
+
+
+    // public static function getImageResize(Request $request)
+    // {
+    //     $img = [];
+    //     if (  count($request->files->keys()) > 0 && $request->hasFile($request->files->keys()[0])) {
+    //         $file = $request->file($request->files->keys()[0]);
+    //         $imageType = $file->getClientOriginalExtension();
+    //         $image_resize = Image::make($file)->resize( 100, 100, function ( $constraint ) {
+    //             $constraint->aspectRatio();
+    //         })->encode( $imageType );
+    //         $img[$request->files->keys()[0]] = $image_resize;
+    //     }
+    //     return $img;
+    // }
 }
